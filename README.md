@@ -12,6 +12,30 @@ Like an [INI][ini] file, there are `sections`, `keys` and `values` - so the user
 
 The usage is ridiculously simple. Just create a class, inherit from `MDO` and override the `setup` method. In the `setup` method, the `add` method is called.
 
+**HINT:** Never ever use the ```save``` method in the ```setup``` method. If you do so, you will always have the default values. Each time the object is created, possible changes are reset to the default values.
+
+**HINT:** In case you already have a git project and you don't want to copy this to your project, just add this as submodule. In the following example this project is added as submodule to ```vendor/MDO```. To import and use ```MDO``` in your own module, you need to extend the ```sys``` path:
+
+```python
+# This is the config file of your module. You have the following file structure
+# + Project root directory
+# +--mymodule - directory of your module
+# +--vendor - git sumodules
+#   + MDO - git submodule of MDO
+#     + MDO - Python module of MDO
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../vendor/MDO/MDO/'))
+print(sys.path)
+
+from MDO import MDO
+
+class MyModuleConfig(MDO):
+    def setup(self: object) -> bool:
+        self.addConfigParameter('section1', 'key1', 'value')
+        self.addConfigParameter('section2', 'key1', 'value')
+```
+
+I already use this in another project, [TaRen][taren], so you might want to have a closer look there.
+
 ### Defining the values
 
 It is really simple:
@@ -20,7 +44,6 @@ It is really simple:
 def setup(self: object) -> bool:
     self.addConfigParameter('section1', 'key1', 'value')
     self.addConfigParameter('section2', 'key1', 'value')
-    self.save()
 ```
 
 ### Accessing the values
@@ -60,18 +83,17 @@ class ThisIsMyConfig(MCO):
 
     # Override the setup method
     def setup(self: object) -> bool:
-        # define the 'key' parameter
-        # in the group 'section
-        # and the default value 'value
+        # in the group 'section'
+        # the 'key' parameter
+        # and the default value 'value'
         self.addConfigParameter('section', 'key', 'value')
-        # Make the setting persistent
-        self.save()
 
 if __name__ == '__main__':
-    # instantiate the object with the file name for persistence.
+    # instantiate the object with the file name.
     myConfigObject: ThisIsMyConfig = ThisIsMyConfig('config.json')
 
     # Read the configuration settings from the 'config.json' file
+    # Up to now they don't exists, so only the defaults are available
     myConfigObject.load()
 
     # read the value from config
@@ -96,3 +118,4 @@ Maybe it is possible to do some things in a more pythonic way. But hey, it works
 [json]: https://www.json.org/
 [mdo]: https://www.github.com/ThirtySomething/MDO
 [python]: https://www.python.org/
+[taren]: https://github.com/ThirtySomething/TaRen

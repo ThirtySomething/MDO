@@ -1,16 +1,30 @@
 import json
 import sys
-
+import os
 
 class MDO:
+    """ Class to deal with dynamic object, mainly uses as config file
+    """
 
     def __init__(self: object, configFile: str) -> None:
+        """ Default constructor
+
+        Args:
+            configFile (str): Name of config file used
+        """
+        # Set name of config file
         self.configFile: str = configFile
+        # Clear catalog of allowed settings
         self.dataConfig: dict = {}
-        self.__init()
+        # Load default values
+        self.setup()
+        # Update with config values
         self.load()
 
     def __cleanup(self: object) -> None:
+        """ Remove configured dynamic attributes from class and
+            cleanup internal catalog of allowed settings
+        """
         for section, sectionData in self.dataConfig.items():
             for key, defaultvalue in sectionData.items():
                 propertyName: str = self.__getPropertyName(section, key)
@@ -19,9 +33,16 @@ class MDO:
         self.dataConfig: dict = {}
 
     def __eprint(self: object, *args, **kwargs):
+        """ Print error messages
+        """
         print(*args, file=sys.stderr, **kwargs)
 
     def __getDict(self: object) -> dict:
+        """ Create dictionary from properties
+
+        Returns:
+            dict: Dictionary of properties
+        """
         dictObject: dict = {}
         for section, sectionData in self.dataConfig.items():
             sectionWork: str = section.upper()
@@ -35,14 +56,26 @@ class MDO:
         return dictObject
 
     def __getPropertyName(self: object, section: str, key: str) -> str:
+        """ Get unified name of property
+
+        Args:
+            section (str): Section name of property
+            key (str): Property name
+
+        Returns:
+            str: Unified property name
+        """
         propertyName: str = section.lower().replace(' ', '') + '_' + key.lower().replace(' ', '')
         return propertyName
 
-    def __init(self: object) -> None:
-        self.__cleanup()
-        self.setup()
-
     def add(self: object, section: str, key: str, default: any) -> None:
+        """ Used to define a property
+
+        Args:
+            section (str): Section name of property
+            key (str): Name of property
+            default (any): Default value of property
+        """
         sectionWork: str = section.upper()
         if sectionWork not in self.dataConfig:
             self.dataConfig[sectionWork] = {}
@@ -52,8 +85,16 @@ class MDO:
         self.__dict__[propertyName] = default
 
     def load(self: object) -> bool:
-        self.__init()
+        """ Load properties from config file
+
+        Returns:
+            bool: True on succes, otherwise False
+        """
+        self.__cleanup()
+        self.setup()
         success: bool = False
+        if not os.path.exists(self.configFile):
+            return success
         with open(self.configFile, 'r') as configfile:
             try:
                 configRead = json.load(configfile)
@@ -70,6 +111,11 @@ class MDO:
         return success
 
     def save(self: object) -> bool:
+        """ Save properties to file
+
+        Returns:
+            bool: True on succes, otherwise False
+        """
         success: bool = False
         with open(self.configFile, 'w') as configfile:
             configData: dict = self.__getDict()
@@ -78,4 +124,6 @@ class MDO:
         return success
 
     def setup(self: object) -> None:
+        """ Dummy method, needs to be overwritten by child class
+        """
         pass
