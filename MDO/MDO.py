@@ -1,6 +1,7 @@
 import json
-import sys
 import os
+import sys
+
 
 class MDO:
     """ Class to deal with dynamic object, mainly uses as config file

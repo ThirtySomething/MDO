@@ -6,9 +6,9 @@ The source code is published [here][mdo].
 
 ## For users
 
-This class was designed to be a base class. This allows the user to use all the possibilities through inheritance. In its source code is what is really important for the user, everything else is encapsulated in the base class.
+This class was designed to be a base class. This allows the user to use all the possibilities through inheritance. In users source code are the parts important for the user, everything else is encapsulated in the the ```MDO``` class.
 
-Like an [INI][ini] file, there are `sections`, `keys` and `values` - so the user has some structure in his data. To allow the user to use multiple identical keys for different sections, the unique variable name is always the combination of `<section>_<key>`, all in lower case.
+Like an [INI][ini] file, there are `sections`, `keys` and `values` - so the user has some structure in his configuration data. To allow the user to use multiple identical keys for different sections, the unique variable name is always the combination of `<section>_<key>`, all in lower case. If there are spaces inside a section or a key name, they will be removed.
 
 The usage is ridiculously simple. Just create a class, inherit from `MDO` and override the `setup` method. In the `setup` method, the `add` method is called.
 
@@ -30,8 +30,8 @@ from MDO import MDO
 
 class MyModuleConfig(MDO):
     def setup(self: object) -> bool:
-        self.addConfigParameter('section1', 'key1', 'value')
-        self.addConfigParameter('section2', 'key1', 'value')
+        self.add('section1', 'key1', 'value')
+        self.add('section2', 'key1', 'value')
 ```
 
 I already use this in another project, [TaRen][taren], so you might want to have a closer look there.
@@ -42,9 +42,21 @@ It is really simple:
 
 ```python
 def setup(self: object) -> bool:
-    self.addConfigParameter('section1', 'key1', 'value')
-    self.addConfigParameter('section2', 'key1', 'value')
+    self.add('section1', 'key1', 'value')
+    self.add('section2', 'key1', 'value')
 ```
+
+**HINT:** The internal required removal of blanks might be the source of problems:
+
+```python
+def setup(self: object) -> bool:
+    self.add('sectiona', 'keyb', 'value')
+    self.add('section a', 'keyb', 'value')
+    self.add('sectiona', 'key b', 'value')
+    self.add('section a', 'key b', 'value')
+```
+
+The specification of this attributes are different, but they will always be the same. ```MDO``` cannot differentiate between them!
 
 ### Accessing the values
 
@@ -56,8 +68,8 @@ mydata1 = ThisIsMyConfig.section1_key1
 mydata2 = ThisIsMyConfig.section2_Key1
 
 # Set new values
-ThisIsMyConfig.section1_key1 = newValue1
-ThisIsMyConfig.section2_key1 = newValue2
+ThisIsMyConfig.section1_key1 = 42
+ThisIsMyConfig.section2_key1 = 'newValue2'
 ```
 
 ### Persistence
@@ -86,7 +98,7 @@ class ThisIsMyConfig(MCO):
         # in the group 'section'
         # the 'key' parameter
         # and the default value 'value'
-        self.addConfigParameter('section', 'key', 'value')
+        self.add('section', 'key', 'value')
 
 if __name__ == '__main__':
     # instantiate the object with the file name.

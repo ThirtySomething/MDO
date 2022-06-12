@@ -1,6 +1,7 @@
-import unittest
-from MDO.MDO import MDO
 import os
+import unittest
+
+from MDO.MDO import MDO
 
 
 class dataTest(MDO):
