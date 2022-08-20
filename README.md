@@ -23,8 +23,11 @@ The usage is ridiculously simple. Just create a class, inherit from `MDO` and ov
 # +--vendor - git sumodules
 #   + MDO - git submodule of MDO
 #     + MDO - Python module of MDO
+
+import os
+import sys
+
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../vendor/MDO/MDO/'))
-print(sys.path)
 
 from MDO import MDO
 
