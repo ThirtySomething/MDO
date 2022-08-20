@@ -116,6 +116,7 @@ class MDO:
                             if key in self.dataConfig[section]:
                                 propertyName: str = self.__getPropertyName(section, key)
                                 self.__dict__[propertyName] = datavalue
+                                self.dataConfig[sectionWork][key] = datavalue
                 success = True
             except ValueError:
                 self.__eprint('Invalid config file [' + '{}'.format(self.configFile) + '], abort')
