@@ -78,16 +78,16 @@ class MDOtest(unittest.TestCase):
         self.assertEqual(hasattr(sut, "s2_k3"), True, "Property s2_k3 does not exist")
         self.assertEqual(42 == sut.s2_k3, True, "Default of s2_k3 is invalid")
         # Up to now not persistent
-        self.assertEqual(os.path.exists(MDOtest.testConfigfile), False, ("Config file [%s] already exists.", "{}".format(MDOtest.testConfigfile)))
+        self.assertEqual(os.path.exists(MDOtest.testConfigfile), False, ("Config file [{}] already exists.".format(MDOtest.testConfigfile)))
         # Save
-        self.assertEqual(sut.save(), True, ("Config file [%s] not saved.", "{}".format(MDOtest.testConfigfile)))
+        self.assertEqual(sut.save(), True, ("Config file [{}] not saved.".format(MDOtest.testConfigfile)))
         # Configfile must exists
-        self.assertEqual(os.path.exists(MDOtest.testConfigfile), True, ("Config file [%s] missing.", "{}".format(MDOtest.testConfigfile)))
+        self.assertEqual(os.path.exists(MDOtest.testConfigfile), True, ("Config file [{}] missing.".format(MDOtest.testConfigfile)))
 
     def test_05_load_implizit(self: object):
         """Implizit load of config"""
         # Configfile must exists
-        self.assertEqual(os.path.exists(MDOtest.testConfigfile), True, ("Config file [%s] missing.", "{}".format(MDOtest.testConfigfile)))
+        self.assertEqual(os.path.exists(MDOtest.testConfigfile), True, ("Config file [{}] missing.".format(MDOtest.testConfigfile)))
         # Init now from config file
         sut: dataTest = dataTest(MDOtest.testConfigfile)
         # Property 1

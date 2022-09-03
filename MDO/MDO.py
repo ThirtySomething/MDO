@@ -115,7 +115,7 @@ class MDO:
                                 self.dataConfig[sectionWork][key] = datavalue
                 success = True
             except ValueError:
-                self.__eprint("Invalid config file [" + "{}".format(self.configFile) + "], abort")
+                self.__eprint("Invalid config file [{}], abort".format(self.configFile))
         return success
 
     def save(self: object) -> bool:
