@@ -4,11 +4,10 @@ import sys
 
 
 class MDO:
-    """ Class to deal with dynamic object, mainly uses as config file
-    """
+    """Class to deal with dynamic object, mainly uses as config file"""
 
     def __init__(self: object, configFile: str) -> None:
-        """ Default constructor
+        """Default constructor
 
         Args:
             configFile (str): Name of config file used
@@ -23,8 +22,8 @@ class MDO:
         self.load()
 
     def __cleanup(self: object) -> None:
-        """ Remove configured dynamic attributes from class and
-            cleanup internal catalog of allowed settings
+        """Remove configured dynamic attributes from class and
+        cleanup internal catalog of allowed settings
         """
         for section, sectionData in self.dataConfig.items():
             for key, defaultvalue in sectionData.items():
@@ -34,12 +33,11 @@ class MDO:
         self.dataConfig: dict = {}
 
     def __eprint(self: object, *args, **kwargs):
-        """ Print error messages
-        """
+        """Print error messages"""
         print(*args, file=sys.stderr, **kwargs)
 
     def __getDict(self: object) -> dict:
-        """ Create dictionary from properties
+        """Create dictionary from properties
 
         Returns:
             dict: Dictionary of properties
@@ -57,7 +55,7 @@ class MDO:
         return dictObject
 
     def __getPropertyName(self: object, section: str, key: str) -> str:
-        """ Get unified name of property
+        """Get unified name of property
 
         Args:
             section (str): Section name of property
@@ -66,21 +64,19 @@ class MDO:
         Returns:
             str: Unified property name
         """
-        propertyName: str = section.lower().replace(' ', '') + '_' + key.lower().replace(' ', '')
+        propertyName: str = section.lower().replace(" ", "") + "_" + key.lower().replace(" ", "")
         return propertyName
 
     def __str__(self):
-        """ Get dictionary as string
-        """
+        """Get dictionary as string"""
         return json.dumps(self.dataConfig, indent=3)
 
-    def __repr__ (self):
-        """ Get dictionary as string
-        """
+    def __repr__(self):
+        """Get dictionary as string"""
         return self.__str__()
 
     def add(self: object, section: str, key: str, default: any) -> None:
-        """ Used to define a property
+        """Used to define a property
 
         Args:
             section (str): Section name of property
@@ -96,7 +92,7 @@ class MDO:
         self.__dict__[propertyName] = default
 
     def load(self: object) -> bool:
-        """ Load properties from config file
+        """Load properties from config file
 
         Returns:
             bool: True on succes, otherwise False
@@ -106,7 +102,7 @@ class MDO:
         success: bool = False
         if not os.path.exists(self.configFile):
             return success
-        with open(self.configFile, 'r') as configfile:
+        with open(self.configFile, "r") as configfile:
             try:
                 configRead = json.load(configfile)
                 for section, sectionData in configRead.items():
@@ -119,23 +115,22 @@ class MDO:
                                 self.dataConfig[sectionWork][key] = datavalue
                 success = True
             except ValueError:
-                self.__eprint('Invalid config file [' + '{}'.format(self.configFile) + '], abort')
+                self.__eprint("Invalid config file [" + "{}".format(self.configFile) + "], abort")
         return success
 
     def save(self: object) -> bool:
-        """ Save properties to file
+        """Save properties to file
 
         Returns:
             bool: True on succes, otherwise False
         """
         success: bool = False
-        with open(self.configFile, 'w') as configfile:
+        with open(self.configFile, "w") as configfile:
             configData: dict = self.__getDict()
             json.dump(configData, configfile, indent=4, sort_keys=True)
             success = True
         return success
 
     def setup(self: object) -> None:
-        """ Dummy method, needs to be overwritten by child class
-        """
+        """Dummy method, needs to be overwritten by child class"""
         pass
