@@ -69,6 +69,16 @@ class MDO:
         propertyName: str = section.lower().replace(' ', '') + '_' + key.lower().replace(' ', '')
         return propertyName
 
+    def __str__(self):
+        """ Get dictionary as string
+        """
+        return json.dumps(self.dataConfig, indent=3)
+
+    def __repr__ (self):
+        """ Get dictionary as string
+        """
+        return self.__str__()
+
     def add(self: object, section: str, key: str, default: any) -> None:
         """ Used to define a property
 
@@ -106,6 +116,7 @@ class MDO:
                             if key in self.dataConfig[section]:
                                 propertyName: str = self.__getPropertyName(section, key)
                                 self.__dict__[propertyName] = datavalue
+                                self.dataConfig[sectionWork][key] = datavalue
                 success = True
             except ValueError:
                 self.__eprint('Invalid config file [' + '{}'.format(self.configFile) + '], abort')
