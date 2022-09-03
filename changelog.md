@@ -4,6 +4,7 @@
 
 CHANGE: Replaced %s syntax with {} syntax
 CHANGE: Using black for code formatting
+CHANGE: Indentation of JSON set to 3
 
 ## 2022-06-12
 

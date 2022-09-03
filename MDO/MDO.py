@@ -127,7 +127,7 @@ class MDO:
         success: bool = False
         with open(self.configFile, "w") as configfile:
             configData: dict = self.__getDict()
-            json.dump(configData, configfile, indent=4, sort_keys=True)
+            json.dump(configData, configfile, indent=3, sort_keys=True)
             success = True
         return success
 
