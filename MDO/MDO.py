@@ -2,6 +2,8 @@ import json
 import os
 import sys
 
+# https://gist.github.com/fumingshih/49c1e04e1bee7caa06a9
+
 
 class MDO:
     """Class to deal with dynamic object, mainly uses as config file"""
@@ -27,7 +29,7 @@ class MDO:
         """
         for section, sectionData in self.dataConfig.items():
             for key, defaultvalue in sectionData.items():
-                propertyName: str = self.__getPropertyName(section, key)
+                propertyName: str = MDO.getPropertyName(section, key)
                 if hasattr(self, propertyName):
                     delattr(self, propertyName)
         self.dataConfig: dict = {}
@@ -35,6 +37,19 @@ class MDO:
     def __eprint(self: object, *args, **kwargs):
         """Print error messages"""
         print(*args, file=sys.stderr, **kwargs)
+
+    def __getattr__(self: object, name: str, value: any) -> any:
+        """Return attribute value"""
+        if name not in self.dataConfig:
+            self.__dict__[name] = None
+            self.dataConfig[name] = None
+        return self.dataConfig[name]
+
+    def __setattr__(self: object, name: str, value: any) -> None:
+        """Set attribute value"""
+        super().__setattr__(name, value)
+        # self.dataConfig[name] = value
+        # dict.__setitem__(self.dataConfig, name, value)
 
     def __getDict(self: object) -> dict:
         """Create dictionary from properties
@@ -50,22 +65,9 @@ class MDO:
             for key, defaultvalue in sectionData.items():
                 if key not in dictObject[sectionWork]:
                     dictObject[sectionWork][key] = defaultvalue
-                propertyName: str = self.__getPropertyName(sectionWork, key)
+                propertyName: str = MDO.getPropertyName(sectionWork, key)
                 dictObject[sectionWork][key] = self.__dict__[propertyName]
         return dictObject
-
-    def __getPropertyName(self: object, section: str, key: str) -> str:
-        """Get unified name of property
-
-        Args:
-            section (str): Section name of property
-            key (str): Property name
-
-        Returns:
-            str: Unified property name
-        """
-        propertyName: str = section.lower().replace(" ", "") + "_" + key.lower().replace(" ", "")
-        return propertyName
 
     def __str__(self):
         """Get dictionary as string"""
@@ -88,7 +90,7 @@ class MDO:
             self.dataConfig[sectionWork] = {}
         if key not in self.dataConfig[sectionWork]:
             self.dataConfig[sectionWork][key] = default
-        propertyName: str = self.__getPropertyName(sectionWork, key)
+        propertyName: str = MDO.getPropertyName(sectionWork, key)
         self.__dict__[propertyName] = default
 
     def load(self: object) -> bool:
@@ -110,13 +112,27 @@ class MDO:
                     if sectionWork in self.dataConfig:
                         for key, datavalue in sectionData.items():
                             if key in self.dataConfig[section]:
-                                propertyName: str = self.__getPropertyName(section, key)
+                                propertyName: str = MDO.getPropertyName(section, key)
                                 self.__dict__[propertyName] = datavalue
                                 self.dataConfig[sectionWork][key] = datavalue
                 success = True
             except ValueError:
                 self.__eprint("Invalid config file [{}], abort".format(self.configFile))
         return success
+
+    # @classmethod
+    def getPropertyName(section: str, key: str) -> str:
+        """Get unified name of property
+
+        Args:
+            section (str): Section name of property
+            key (str): Property name
+
+        Returns:
+            str: Unified property name
+        """
+        propertyName: str = "{}_{}".format(section, key).lower().replace(" ", "")
+        return propertyName
 
     def save(self: object) -> bool:
         """Save properties to file

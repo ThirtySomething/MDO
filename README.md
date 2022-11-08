@@ -66,13 +66,16 @@ The specification of this attributes are different, but they will always be the 
 Based on the above definition, it is done this way:
 
 ```python
+# Get the attribute name
+attribute1 = MDO.getPropertyName('section1', 'key1')
+attribute2 = MDO.getPropertyName('section2', 'key1')
 # Read values
-mydata1 = ThisIsMyConfig.section1_key1
-mydata2 = ThisIsMyConfig.section2_Key1
+mydata1 = attrget(ThisIsMyConfig, attribute1)
+mydata2 = attrget(ThisIsMyConfig, attribute2)
 
 # Set new values
-ThisIsMyConfig.section1_key1 = 42
-ThisIsMyConfig.section2_key1 = "newValue2"
+setattr(ThisIsMyConfig, attribute1, 42)
+setattr(ThisIsMyConfig, attribute1, "newValue2")
 ```
 
 ### Persistence
@@ -112,10 +115,10 @@ if __name__ == "__main__":
     myConfigObject.load()
 
     # read the value from config
-    mydata = myConfigObject.section_key
+    mydata = attrget(myConfigObject, MDO.getPropertyName("section", "key"))
 
     # Set a new value
-    myConfigObject.section_key = newValue
+    attrset(myConfigObject, MDO.getPropertyName("section", "key"), newValue)
 
     # Save the configuration settings in the file "config.json".
     myConfigObject.save()

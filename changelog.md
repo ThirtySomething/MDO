@@ -1,5 +1,9 @@
 # Changelog
 
+## 2022-11-08
+
+CHANGE: Method `getPropertyName` as static class method
+
 ## 2022-09-03
 
 CHANGE: Replaced %s syntax with {} syntax
