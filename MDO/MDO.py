@@ -23,11 +23,11 @@ class MDO:
         # Update with config values
         self.load()
 
-    def __str__(self):
+    def __str__(self: object) -> str:
         """Get dictionary as string"""
         return json.dumps(self._data, indent=4)
 
-    def __repr__(self):
+    def __repr__(self: object) -> str:
         """Get dictionary as string"""
         return self.__str__()
 
@@ -51,7 +51,7 @@ class MDO:
         # Dictionary to memorized real used data
         self._data: dict = {}
 
-    def eprint(self: object, *args, **kwargs):
+    def eprint(self: object, *args, **kwargs) -> None:
         """Print error messages"""
         print(*args, file=sys.stderr, **kwargs)
 
@@ -66,11 +66,11 @@ class MDO:
         # Set defaults
         self.setup()
         # Assume failure by default
-        success : bool = False
+        success: bool = False
         if not os.path.exists(self._config_file_name):
             # Config file does not exist, abort
             return success
-        with open(self._config_file_name, "r") as config_file:
+        with open(self._config_file_name, "r", encoding="utf-8") as config_file:
             # Read data from file
             try:
                 config_read = json.load(config_file)
@@ -80,7 +80,7 @@ class MDO:
                 # Set success
                 success = True
             except ValueError:
-                self.eprint("Invalid config file [{}], abort".format(self.config_file))
+                self.eprint("Invalid config file [%s], abort", self._config_file_name)
         return success
 
     def save(self: object) -> bool:
@@ -90,13 +90,13 @@ class MDO:
             bool: True on succes, otherwise False
         """
         success: bool = False
-        data_stripped:dict = {}
+        data_stripped: dict = {}
         for section, section_data in self._defaults.items():
-            for key, value in section_data.items():
+            for key, dummy in section_data.items():
                 if section not in data_stripped:
-                    data_stripped[section]={}
+                    data_stripped[section] = {}
                 data_stripped[section][key] = self.value_get(section, key)
-        with open(self._config_file_name, "w") as config_file:
+        with open(self._config_file_name, "w", encoding="utf-8") as config_file:
             json.dump(data_stripped, config_file, indent=4, sort_keys=True)
             success = True
         return success
@@ -114,15 +114,15 @@ class MDO:
         section_work: str = section.upper().strip()
         if section_work not in dictionary:
             dictionary[section_work] = {}
-        key_work:str = key.strip()
+        key_work: str = key.strip()
         dictionary[section_work][key_work] = value
 
     def setup(self: object) -> None:
         """Dummy method, needs to be overwritten by child class"""
         pass
 
-    def value_get(self:object, section:str, key:str):
-        """Set value to object
+    def value_get(self: object, section: str, key: str) -> any:
+        """Get value from object
 
         Args:
             self (object): Instance
@@ -130,7 +130,7 @@ class MDO:
             key (str): Key used
 
         Returns:
-            _type_: _description_
+            any: None or the value saved
         """
         section_work: str = section.upper()
         if section_work not in self._data:
@@ -139,5 +139,13 @@ class MDO:
             return None
         return self._data[section_work][key]
 
-    def value_set(self:object, section:str, key:str, value)->None:
-        self.set_dictionary_entry(self._data, section,key,value)
+    def value_set(self: object, section: str, key: str, value: any) -> None:
+        """Set value to object
+
+        Args:
+            self (object): Instance
+            section (str): Section used
+            key (str): Key used
+            value (any): Value to set
+        """
+        self.set_dictionary_entry(self._data, section, key, value)
