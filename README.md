@@ -49,38 +49,25 @@ def setup(self: object) -> bool:
     self.add("section2", "key1", "value")
 ```
 
-**HINT:** The internal required removal of blanks might be the source of problems:
-
-```python
-def setup(self: object) -> bool:
-    self.add("sectiona", "keyb", "value")
-    self.add("section a", "keyb", "value")
-    self.add("sectiona", "key b", "value")
-    self.add("section a", "key b", "value")
-```
-
-The specification of this attributes are different, but they will always be the same. `MDO` cannot differentiate between them!
+**HINT:** The section name is always turned to uppercase internally. Both, section and key are stripped from beginning/ending whitespaces.
 
 ### Accessing the values
 
 Based on the above definition, it is done this way:
 
 ```python
-# Get the attribute name
-attribute1 = MDO.getPropertyName('section1', 'key1')
-attribute2 = MDO.getPropertyName('section2', 'key1')
 # Read values
-mydata1 = attrget(ThisIsMyConfig, attribute1)
-mydata2 = attrget(ThisIsMyConfig, attribute2)
+mydata1 = ThisIsMyConfig.value_get("section1", "key1")
+mydata2 = ThisIsMyConfig.value_get("section1", "key2")
 
 # Set new values
-setattr(ThisIsMyConfig, attribute1, 42)
-setattr(ThisIsMyConfig, attribute1, "newValue2")
+ThisIsMyConfig.value_set("section1", "key1", "value")
+ThisIsMyConfig.value_set("section1", "key2", 42)
 ```
 
 ### Persistence
 
-You can also `load` and/or `store` the data.
+You can also `load` and/or `save` the data.
 
 ```python
 # Load the data
@@ -115,10 +102,10 @@ if __name__ == "__main__":
     myConfigObject.load()
 
     # read the value from config
-    mydata = attrget(myConfigObject, MDO.getPropertyName("section", "key"))
+    mydata = ThisIsMyConfig.value_get("section", "key")
 
     # Set a new value
-    attrset(myConfigObject, MDO.getPropertyName("section", "key"), newValue)
+    ThisIsMyConfig.value_set("section", "key", newValue)
 
     # Save the configuration settings in the file "config.json".
     myConfigObject.save()
@@ -126,11 +113,9 @@ if __name__ == "__main__":
 
 ## Inside
 
-The class uses the [JSON][json] module of [python][python]. Internally, a two-dimensional dictionary is used with `sections`, `keys` and the corresponding `default`. Using this dictionary, a check is performed in the `load` and `save` methods. So it is not possible to use more than the defined entries.
+The class uses the [JSON][json] module of [python][python]. Internally there are two two-dimensional dictionarys used with `sections`, `keys` and the corresponding `default`. The first one is to store the defaults, the second one is to deal with the real data. Using the dictionary of the defaults, a check is performed in the `save` method. So it is not possible to make more than the defined entries persistend. But during runtime you can add as much entries as you like.
 
-On the one hand with the `add` function the section and the key are entered into the internal dictionary with the default value. This internal dictionary contains the structure of the data. Secondly, an attribute name is created from the name of the `section` and the `key` according to the scheme `<section>_<key>` and the attribute is dynamically added to the class.
-
-Maybe it is possible to do some things in a more pythonic way. But hey, it works, so what the heck?
+On the one hand with the `add` function the section and the key are entered into the internal dictionary with the default value. This internal dictionary contains the structure of the data. Maybe it is possible to do some things in a more pythonic way. But hey, it works, so what the heck?
 
 [ini]: https://en.wikipedia.org/wiki/INI_file
 [json]: https://www.json.org/

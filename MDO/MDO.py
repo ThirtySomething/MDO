@@ -8,70 +8,24 @@ import sys
 class MDO:
     """Class to deal with dynamic object, mainly uses as config file"""
 
-    def __init__(self: object, configFile: str) -> None:
+    def __init__(self: object, config_file_name: str) -> None:
         """Default constructor
 
         Args:
-            configFile (str): Name of config file used
+            config_file_name (str): Name of config file used
         """
         # Set name of config file
-        self.configFile: str = configFile
-        # Clear catalog of allowed settings
-        self.dataConfig: dict = {}
+        self._config_file_name: str = config_file_name
+        # Define properties in cleanup method
+        self.cleanup()
         # Load default values
         self.setup()
         # Update with config values
         self.load()
 
-    def __cleanup(self: object) -> None:
-        """Remove configured dynamic attributes from class and
-        cleanup internal catalog of allowed settings
-        """
-        for section, sectionData in self.dataConfig.items():
-            for key, defaultvalue in sectionData.items():
-                propertyName: str = MDO.getPropertyName(section, key)
-                if hasattr(self, propertyName):
-                    delattr(self, propertyName)
-        self.dataConfig: dict = {}
-
-    def __eprint(self: object, *args, **kwargs):
-        """Print error messages"""
-        print(*args, file=sys.stderr, **kwargs)
-
-    def __getattr__(self: object, name: str, value: any) -> any:
-        """Return attribute value"""
-        if name not in self.dataConfig:
-            self.__dict__[name] = None
-            self.dataConfig[name] = None
-        return self.dataConfig[name]
-
-    def __setattr__(self: object, name: str, value: any) -> None:
-        """Set attribute value"""
-        super().__setattr__(name, value)
-        # self.dataConfig[name] = value
-        # dict.__setitem__(self.dataConfig, name, value)
-
-    def __getDict(self: object) -> dict:
-        """Create dictionary from properties
-
-        Returns:
-            dict: Dictionary of properties
-        """
-        dictObject: dict = {}
-        for section, sectionData in self.dataConfig.items():
-            sectionWork: str = section.upper()
-            if sectionWork not in dictObject:
-                dictObject[sectionWork] = {}
-            for key, defaultvalue in sectionData.items():
-                if key not in dictObject[sectionWork]:
-                    dictObject[sectionWork][key] = defaultvalue
-                propertyName: str = MDO.getPropertyName(sectionWork, key)
-                dictObject[sectionWork][key] = self.__dict__[propertyName]
-        return dictObject
-
     def __str__(self):
         """Get dictionary as string"""
-        return json.dumps(self.dataConfig, indent=3)
+        return json.dumps(self._data, indent=4)
 
     def __repr__(self):
         """Get dictionary as string"""
@@ -85,54 +39,49 @@ class MDO:
             key (str): Name of property
             default (any): Default value of property
         """
-        sectionWork: str = section.upper()
-        if sectionWork not in self.dataConfig:
-            self.dataConfig[sectionWork] = {}
-        if key not in self.dataConfig[sectionWork]:
-            self.dataConfig[sectionWork][key] = default
-        propertyName: str = MDO.getPropertyName(sectionWork, key)
-        self.__dict__[propertyName] = default
+        # Write to defaults
+        self.set_dictionary_entry(self._defaults, section, key, default)
+        # Also write to used data
+        self.set_dictionary_entry(self._data, section, key, default)
+
+    def cleanup(self: object) -> None:
+        """Cleanup internal data"""
+        # Dictionary to define allowed sections, keys and defaults
+        self._defaults: dict = {}
+        # Dictionary to memorized real used data
+        self._data: dict = {}
+
+    def eprint(self: object, *args, **kwargs):
+        """Print error messages"""
+        print(*args, file=sys.stderr, **kwargs)
 
     def load(self: object) -> bool:
-        """Load properties from config file
+        """Load data from config file
 
         Returns:
             bool: True on succes, otherwise False
         """
-        self.__cleanup()
+        # Erase internal storage
+        self.cleanup()
+        # Set defaults
         self.setup()
-        success: bool = False
-        if not os.path.exists(self.configFile):
+        # Assume failure by default
+        success : bool = False
+        if not os.path.exists(self._config_file_name):
+            # Config file does not exist, abort
             return success
-        with open(self.configFile, "r") as configfile:
+        with open(self._config_file_name, "r") as config_file:
+            # Read data from file
             try:
-                configRead = json.load(configfile)
-                for section, sectionData in configRead.items():
-                    sectionWork: str = section.upper()
-                    if sectionWork in self.dataConfig:
-                        for key, datavalue in sectionData.items():
-                            if key in self.dataConfig[section]:
-                                propertyName: str = MDO.getPropertyName(section, key)
-                                self.__dict__[propertyName] = datavalue
-                                self.dataConfig[sectionWork][key] = datavalue
+                config_read = json.load(config_file)
+                for section, section_data in config_read.items():
+                    for key, data_value in section_data.items():
+                        self.set_dictionary_entry(self._data, section, key, data_value)
+                # Set success
                 success = True
             except ValueError:
-                self.__eprint("Invalid config file [{}], abort".format(self.configFile))
+                self.eprint("Invalid config file [{}], abort".format(self.config_file))
         return success
-
-    # @classmethod
-    def getPropertyName(section: str, key: str) -> str:
-        """Get unified name of property
-
-        Args:
-            section (str): Section name of property
-            key (str): Property name
-
-        Returns:
-            str: Unified property name
-        """
-        propertyName: str = "{}_{}".format(section, key).lower().replace(" ", "")
-        return propertyName
 
     def save(self: object) -> bool:
         """Save properties to file
@@ -141,12 +90,54 @@ class MDO:
             bool: True on succes, otherwise False
         """
         success: bool = False
-        with open(self.configFile, "w") as configfile:
-            configData: dict = self.__getDict()
-            json.dump(configData, configfile, indent=3, sort_keys=True)
+        data_stripped:dict = {}
+        for section, section_data in self._defaults.items():
+            for key, value in section_data.items():
+                if section not in data_stripped:
+                    data_stripped[section]={}
+                data_stripped[section][key] = self.value_get(section, key)
+        with open(self._config_file_name, "w") as config_file:
+            json.dump(data_stripped, config_file, indent=4, sort_keys=True)
             success = True
         return success
+
+    def set_dictionary_entry(self: object, dictionary: dict, section: str, key: str, value: any) -> None:
+        """Set value to dictionary
+
+        Args:
+            self (object): Instance
+            dictionary (dict): Dictionary to store data
+            section (str): Section used
+            key (str): Key used
+            value (any): Value to set
+        """
+        section_work: str = section.upper().strip()
+        if section_work not in dictionary:
+            dictionary[section_work] = {}
+        key_work:str = key.strip()
+        dictionary[section_work][key_work] = value
 
     def setup(self: object) -> None:
         """Dummy method, needs to be overwritten by child class"""
         pass
+
+    def value_get(self:object, section:str, key:str):
+        """Set value to object
+
+        Args:
+            self (object): Instance
+            section (str): Section used
+            key (str): Key used
+
+        Returns:
+            _type_: _description_
+        """
+        section_work: str = section.upper()
+        if section_work not in self._data:
+            return None
+        if key not in self._data[section_work]:
+            return None
+        return self._data[section_work][key]
+
+    def value_set(self:object, section:str, key:str, value)->None:
+        self.set_dictionary_entry(self._data, section,key,value)

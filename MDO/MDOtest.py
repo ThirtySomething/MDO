@@ -27,60 +27,58 @@ class MDOtest(unittest.TestCase):
     def test_01_init(self: object) -> None:
         """Test initialization"""
         sut: dataTest = dataTest(MDOtest.testConfigfile)
-        self.assertEqual(hasattr(sut, "configFile"), True, "Property for config filename does not exist")
-        self.assertEqual(hasattr(sut, "dataConfig"), True, "Has attribute about section, keys and defaults")
+        self.assertEqual(hasattr(sut, "_config_file_name"), True, "Property for config filename does not exist")
+        self.assertEqual(hasattr(sut, "_defaults"), True, "Dictionary for defaults does not exist")
+        self.assertEqual(hasattr(sut, "_data"), True, "Dictionary for data does not exist")
 
     def test_02_defaultvalues(self: object) -> None:
         """Test of default values"""
+        # Section, key, value to compare
+        data_list = [
+            ("s1", "k1", "v1"),
+            ("s1", "k2", 42),
+            ("s2", "k3", "v2"),
+            ("s3", "k3", None)
+        ]
         # Init with default values
         sut: dataTest = dataTest(MDOtest.testConfigfile)
-        # Property 1
-        self.assertEqual(hasattr(sut, "s1_k1"), True, "Property s1_k1 does not exist")
-        self.assertEqual("v1" == sut.s1_k1, True, "Default of s1_k1 is invalid")
-        # Property 2
-        self.assertEqual(hasattr(sut, "s1_k2"), True, "Property s1_k2 does not exist")
-        self.assertEqual(42 == sut.s1_k2, True, "Default of s1_k2 is invalid")
-        # Property 3
-        self.assertEqual(hasattr(sut, "s2_k3"), True, "Property s2_k3 does not exist")
-        self.assertEqual("v2" == sut.s2_k3, True, "Default of s2_k3 is invalid")
+        # Test section, key, values
+        for record in data_list:
+            self.assertEqual(record[2] == sut.value_get(record[0], record[1]), True, "Default value invalid")
 
     def test_03_modify(self: object) -> None:
         """Test of modifying values"""
+        # Section, key, value, value new
+        data_list = [
+            ("s1", "k1", "v1", "v2"),
+            ("s1", "k2", 42, "v3"),
+            ("s2", "k3", "v2", 42),
+            ("s3", "k3", None, None)
+        ]
         # Init with default values
         sut: dataTest = dataTest(MDOtest.testConfigfile)
-        # Property 1
-        self.assertEqual(hasattr(sut, "s1_k1"), True, "Property s1_k1 does not exist")
-        self.assertEqual("v1" == sut.s1_k1, True, "Default of s1_k1 is invalid")
-        # Property 2
-        self.assertEqual(hasattr(sut, "s1_k2"), True, "Property s1_k2 does not exist")
-        self.assertEqual(42 == sut.s1_k2, True, "Default of s1_k2 is invalid")
-        # Property 3
-        self.assertEqual(hasattr(sut, "s2_k3"), True, "Property s2_k3 does not exist")
-        self.assertEqual("v2" == sut.s2_k3, True, "Default of s2_k3 is invalid")
-        # Modify propoerty 3
-        sut.s2_k3 = 42
-        # Property 3
-        self.assertEqual(hasattr(sut, "s2_k3"), True, "Property s2_k3 does not exist")
-        self.assertEqual(42 == sut.s2_k3, True, "Default of s2_k3 is invalid")
+        # Test section, key, values and new values
+        for record in data_list:
+            self.assertEqual(record[2] == sut.value_get(record[0], record[1]), True, "Default value invalid")
+            sut.value_set(record[0], record[1], record[3])
+            self.assertEqual(record[3] == sut.value_get(record[0], record[1]), True, "Modified value invalid")
 
     def test_04_save_explicit(self: object) -> None:
         """Test save of config"""
+        # Section, key, value, value new
+        data_list = [
+            ("s1", "k1", "v1", "v2"),
+            ("s1", "k2", 42, "v3"),
+            ("s2", "k3", "v2", 42),
+            ("s3", "k3", None, None)
+        ]
         # Init with default values
         sut: dataTest = dataTest(MDOtest.testConfigfile)
-        # Property 1
-        self.assertEqual(hasattr(sut, "s1_k1"), True, "Property s1_k1 does not exist")
-        self.assertEqual("v1" == sut.s1_k1, True, "Default of s1_k1 is invalid")
-        # Property 2
-        self.assertEqual(hasattr(sut, "s1_k2"), True, "Property s1_k2 does not exist")
-        self.assertEqual(42 == sut.s1_k2, True, "Default of s1_k2 is invalid")
-        # Property 3
-        self.assertEqual(hasattr(sut, "s2_k3"), True, "Property s2_k3 does not exist")
-        self.assertEqual("v2" == sut.s2_k3, True, "Default of s2_k3 is invalid")
-        # Modify propoerty 3
-        sut.s2_k3 = 42
-        # Property 3
-        self.assertEqual(hasattr(sut, "s2_k3"), True, "Property s2_k3 does not exist")
-        self.assertEqual(42 == sut.s2_k3, True, "Default of s2_k3 is invalid")
+        # Test section, key, values and new values
+        for record in data_list:
+            self.assertEqual(record[2] == sut.value_get(record[0], record[1]), True, "Default value invalid")
+            sut.value_set(record[0], record[1], record[3])
+            self.assertEqual(record[3] == sut.value_get(record[0], record[1]), True, "Modified value invalid")
         # Up to now not persistent
         self.assertEqual(os.path.exists(MDOtest.testConfigfile), False, ("Config file [{}] already exists.".format(MDOtest.testConfigfile)))
         # Save
@@ -90,51 +88,21 @@ class MDOtest(unittest.TestCase):
 
     def test_05_load_implizit(self: object) -> None:
         """Implizit load of config"""
+        # Section, key, value, value new
+        data_list = [
+            ("s1", "k1", "v2"),
+            ("s1", "k2", "v3"),
+            ("s2", "k3", 42),
+            ("s3", "k3", None)
+        ]
         # Configfile must exists
         self.assertEqual(os.path.exists(MDOtest.testConfigfile), True, ("Config file [{}] missing.".format(MDOtest.testConfigfile)))
-        # Init now from config file
+        # Init with default values
         sut: dataTest = dataTest(MDOtest.testConfigfile)
-        # Property 1
-        self.assertEqual(hasattr(sut, "s1_k1"), True, "Property s1_k1 does not exist")
-        self.assertEqual("v1" == sut.s1_k1, True, "Default of s1_k1 is invalid")
-        # Property 2
-        self.assertEqual(hasattr(sut, "s1_k2"), True, "Property s1_k2 does not exist")
-        self.assertEqual(42 == sut.s1_k2, True, "Default of s1_k2 is invalid")
-        # Property 3
-        self.assertEqual(hasattr(sut, "s2_k3"), True, "Property s2_k3 does not exist")
-        self.assertEqual(42 == sut.s2_k3, True, "Default of s2_k3 is invalid")
-
-    def test_06_getPropertyName(self: object):
-        """Test of attribute name"""
-        # Define list of attributes
-        # 1. Section
-        # 2. Key
-        # 3. Expected attribute name
-        propertyDataList = [
-            ("section", "key", "section_key"),
-            ("section ", "key", "section_key"),
-            (" section ", "key", "section_key"),
-            (" section", "key", "section_key"),
-            ("section", " key", "section_key"),
-            ("section", " key ", "section_key"),
-            ("section", "key ", "section_key"),
-            ("SECTION", "KEY", "section_key"),
-            ("s e c t i o n", "k e y", "section_key"),
-            ("s_e_c_t_i_o_n", "k e y", "s_e_c_t_i_o_n_key"),
-            ("s_e_c_t_i_o_n", "k-e-y", "s_e_c_t_i_o_n_k-e-y"),
-        ]
-
-        # Get a sut
-        sut: dataTest = dataTest(MDOtest.testConfigfile)
-
-        # Check all defined property definitions
-        for currentPropertyData in propertyDataList:
-            keyGet: str = MDO.getPropertyName(currentPropertyData[0], currentPropertyData[1])
-            keyExp: str = currentPropertyData[2]
-            setattr(sut, keyExp, keyExp)
-            self.assertEqual(keyExp == keyGet, True, "Got invalid attribute name.")
-            self.assertEqual(hasattr(sut, keyExp), True, "Object does not have expected attribute.")
-            self.assertEqual(getattr(sut, keyExp) == keyGet, True, "Object does not have expected attribute.")
+        # Test section, key, and values
+        for record in data_list:
+            value = sut.value_get(record[0], record[1])
+            self.assertEqual(record[2] == value, True, "Read invalid data, expected [{}], but got [{}]".format(record[2], value))
 
     @classmethod
     def tearDownClass(cls) -> None:
