@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+from collections import OrderedDict
 
 # https://gist.github.com/fumingshih/49c1e04e1bee7caa06a9
 
@@ -96,6 +97,7 @@ class MDO:
                 if section not in data_stripped:
                     data_stripped[section] = {}
                 data_stripped[section][key] = self.value_get(section, key)
+        data_stripped = OrderedDict(sorted(data_stripped.items()))
         with open(self._config_file_name, "w", encoding="utf-8") as config_file:
             json.dump(data_stripped, config_file, indent=4, sort_keys=True)
             success = True
