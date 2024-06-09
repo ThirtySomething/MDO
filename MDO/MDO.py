@@ -2,6 +2,7 @@ import json
 import os
 import sys
 from collections import OrderedDict
+from operator import getitem
 
 # https://gist.github.com/fumingshih/49c1e04e1bee7caa06a9
 
@@ -97,7 +98,7 @@ class MDO:
                 if section not in data_stripped:
                     data_stripped[section] = {}
                 data_stripped[section][key] = self.value_get(section, key)
-        data_stripped = OrderedDict(sorted(data_stripped.items()))
+        data_stripped = self.sort_dict(data_stripped)
         with open(self._config_file_name, "w", encoding="utf-8") as config_file:
             json.dump(data_stripped, config_file, indent=4, sort_keys=True)
             success = True
@@ -122,6 +123,15 @@ class MDO:
     def setup(self: object) -> None:
         """Dummy method, needs to be overwritten by child class"""
         pass
+
+    def sort_dict(self: object, item: dict) -> dict:
+        """
+        Sort dict by key
+        @see: https://gist.github.com/gyli/f60f0374defc383aa098d44cfbd318eb
+        """
+        for k, v in sorted(item.items()):
+            item[k] = sorted(v) if isinstance(v, list) else v
+        return {k: self.sort_dict(v) if isinstance(v, dict) else v for k, v in sorted(item.items())}
 
     def value_get(self: object, section: str, key: str) -> any:
         """Get value from object
