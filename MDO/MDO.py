@@ -82,7 +82,7 @@ class MDO:
                 # Set success
                 success = True
             except ValueError:
-                self.eprint("Invalid config file [%s], abort", self._config_file_name)
+                self.eprint(f"Invalid config file [{self._config_file_name}], abort")
         return success
 
     def save(self: object) -> bool:
