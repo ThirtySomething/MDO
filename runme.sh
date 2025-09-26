@@ -7,7 +7,7 @@
 # Set base variables, you may tweak here
 ################################################################################
 # Set name of python environment
-ENV_NAME="venv"
+ENV_NAME=".venv"
 # Set name of python environment list exported by pip freeze > ${REQ_NAME}
 REQ_NAME="requirements.txt"
 # Get name of script to start
@@ -24,12 +24,20 @@ PATH_BASE=$(dirname "$0")
 PATH_ENVIRONMENT="${PATH_BASE}/${ENV_NAME}"
 
 ################################################################################
+# To ensure usage of Python 3
+################################################################################
+REAL_PYTHON=$(which python)
+if [[ -z "${REAL_PYTHON}" ]]; then
+    REAL_PYTHON=$(which python3)
+fi
+
+################################################################################
 # Check environment for existence
 ################################################################################
 if [[ ! -d "${PATH_ENVIRONMENT}" ]]; then
     # Create environment
     echo "Create missing environment [${ENV_NAME}]"
-    python -m venv ${ENV_NAME}
+    ${REAL_PYTHON} -m venv ${ENV_NAME}
 
     # Activate environment
     if [[ -z "${VIRTUAL_ENV}" ]]; then
@@ -65,4 +73,4 @@ fi
 # Execute script
 ################################################################################
 echo "Execute script [${SCRIPT}]"
-python ${SCRIPT}
+${REAL_PYTHON} ${SCRIPT}

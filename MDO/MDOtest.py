@@ -5,7 +5,7 @@ from MDO.MDO import MDO
 
 
 class dataTest(MDO):
-    def setup(self: object) -> bool:
+    def setup(self) -> None:
         self.add("s1", "k1", "v1")
         self.add("s1", "k2", 42)
         self.add("s2", "k3", "v2")
@@ -24,14 +24,14 @@ class MDOtest(unittest.TestCase):
     def setUpClass(cls) -> None:
         MDOtest.deleteFile()
 
-    def test_01_init(self: object) -> None:
+    def test_01_init(self) -> None:
         """Test initialization"""
         sut: dataTest = dataTest(MDOtest.testConfigfile)
         self.assertEqual(hasattr(sut, "_config_file_name"), True, "Property for config filename does not exist")
         self.assertEqual(hasattr(sut, "_defaults"), True, "Dictionary for defaults does not exist")
         self.assertEqual(hasattr(sut, "_data"), True, "Dictionary for data does not exist")
 
-    def test_02_defaultvalues(self: object) -> None:
+    def test_02_defaultvalues(self) -> None:
         """Test of default values"""
         # Section, key, value to compare
         data_list = [
@@ -46,7 +46,7 @@ class MDOtest(unittest.TestCase):
         for record in data_list:
             self.assertEqual(record[2] == sut.value_get(record[0], record[1]), True, "Default value invalid")
 
-    def test_03_modify(self: object) -> None:
+    def test_03_modify(self) -> None:
         """Test of modifying values"""
         # Section, key, value, value new
         data_list = [
@@ -63,7 +63,7 @@ class MDOtest(unittest.TestCase):
             sut.value_set(record[0], record[1], record[3])
             self.assertEqual(record[3] == sut.value_get(record[0], record[1]), True, "Modified value invalid")
 
-    def test_04_save_explicit(self: object) -> None:
+    def test_04_save_explicit(self) -> None:
         """Test save of config"""
         # Section, key, value, value new
         data_list = [
@@ -86,7 +86,7 @@ class MDOtest(unittest.TestCase):
         # Configfile must exists
         self.assertEqual(os.path.exists(MDOtest.testConfigfile), True, ("Config file [{}] missing.".format(MDOtest.testConfigfile)))
 
-    def test_05_load_implizit(self: object) -> None:
+    def test_05_load_implizit(self) -> None:
         """Implizit load of config"""
         # Section, key, value, value new
         data_list = [

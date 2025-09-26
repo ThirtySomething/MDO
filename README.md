@@ -2,7 +2,7 @@
 
 `M`y `D`ata `O`bject - a [python][python] class to simplify the handling of data objects. It is [JSON][json]-based. The class is mainly designed to be used for configuration files.
 
-The source code is published [here][mdo].
+The source code is published [here on GitHub][mdo].
 
 ## For users
 
@@ -32,7 +32,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ve
 from MDO import MDO
 
 class MyModuleConfig(MDO):
-    def setup(self: object) -> bool:
+    def setup(self) -> bool:
         self.add("section1", "key1", "value")
         self.add("section2", "key1", "value")
 ```
@@ -44,7 +44,7 @@ I already use this in another project, [TaRen][taren], so you might want to have
 It is really simple:
 
 ```python
-def setup(self: object) -> bool:
+def setup(self) -> bool:
     self.add("section1", "key1", "value")
     self.add("section2", "key1", "value")
 ```
@@ -87,7 +87,7 @@ from MDO.MDO import MDO
 class ThisIsMyConfig(MDO):
 
     # Override the setup method
-    def setup(self: object) -> bool:
+    def setup(self) -> bool:
         # in the group "section"
         # the "key" parameter
         # and the default value "value"

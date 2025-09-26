@@ -1,8 +1,7 @@
 import json
 import os
 import sys
-from collections import OrderedDict
-from operator import getitem
+from typing import Any
 
 # https://gist.github.com/fumingshih/49c1e04e1bee7caa06a9
 
@@ -10,7 +9,7 @@ from operator import getitem
 class MDO:
     """Class to deal with dynamic object, mainly uses as config file"""
 
-    def __init__(self: object, config_file_name: str) -> None:
+    def __init__(self, config_file_name: str) -> None:
         """Default constructor
 
         Args:
@@ -25,39 +24,39 @@ class MDO:
         # Update with config values
         self.load()
 
-    def __str__(self: object) -> str:
+    def __str__(self) -> str:
         """Get dictionary as string"""
         return json.dumps(self._data, indent=4)
 
-    def __repr__(self: object) -> str:
+    def __repr__(self) -> str:
         """Get dictionary as string"""
         return self.__str__()
 
-    def add(self: object, section: str, key: str, default: any) -> None:
+    def add(self, section: str, key: str, default: Any) -> None:
         """Used to define a property
 
         Args:
             section (str): Section name of property
             key (str): Name of property
-            default (any): Default value of property
+            default (Any): Default value of property
         """
         # Write to defaults
         self.set_dictionary_entry(self._defaults, section, key, default)
         # Also write to used data
         self.set_dictionary_entry(self._data, section, key, default)
 
-    def cleanup(self: object) -> None:
+    def cleanup(self) -> None:
         """Cleanup internal data"""
         # Dictionary to define allowed sections, keys and defaults
         self._defaults: dict = {}
         # Dictionary to memorized real used data
         self._data: dict = {}
 
-    def eprint(self: object, *args, **kwargs) -> None:
+    def eprint(self, *args, **kwargs) -> None:
         """Print error messages"""
         print(*args, file=sys.stderr, **kwargs)
 
-    def load(self: object) -> bool:
+    def load(self) -> bool:
         """Load data from config file
 
         Returns:
@@ -85,7 +84,7 @@ class MDO:
                 self.eprint(f"Invalid config file [{self._config_file_name}], abort")
         return success
 
-    def save(self: object) -> bool:
+    def save(self) -> bool:
         """Save properties to file
 
         Returns:
@@ -103,7 +102,7 @@ class MDO:
             success = True
         return success
 
-    def set_dictionary_entry(self: object, dictionary: dict, section: str, key: str, value: any) -> None:
+    def set_dictionary_entry(self, dictionary: dict, section: str, key: str, value: Any) -> None:
         """Set value to dictionary
 
         Args:
@@ -111,7 +110,7 @@ class MDO:
             dictionary (dict): Dictionary to store data
             section (str): Section used
             key (str): Key used
-            value (any): Value to set
+            value (Any): Value to set
         """
         section_work: str = section.upper().strip()
         if section_work not in dictionary:
@@ -119,11 +118,11 @@ class MDO:
         key_work: str = key.strip()
         dictionary[section_work][key_work] = value
 
-    def setup(self: object) -> None:
+    def setup(self) -> None:
         """Dummy method, needs to be overwritten by child class"""
         pass
 
-    def value_get(self: object, section: str, key: str) -> any:
+    def value_get(self, section: str, key: str) -> Any:
         """Get value from object
 
         Args:
@@ -132,7 +131,7 @@ class MDO:
             key (str): Key used
 
         Returns:
-            any: None or the value saved
+            Any: None or the value saved
         """
         section_work: str = section.upper()
         if section_work not in self._data:
@@ -141,13 +140,13 @@ class MDO:
             return None
         return self._data[section_work][key]
 
-    def value_set(self: object, section: str, key: str, value: any) -> None:
+    def value_set(self, section: str, key: str, value: Any) -> None:
         """Set value to object
 
         Args:
             self (object): Instance
             section (str): Section used
             key (str): Key used
-            value (any): Value to set
+            value (Any): Value to set
         """
         self.set_dictionary_entry(self._data, section, key, value)
