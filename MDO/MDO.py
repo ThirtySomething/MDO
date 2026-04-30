@@ -56,6 +56,24 @@ class MDO:
         """Print error messages"""
         print(*args, file=sys.stderr, **kwargs)
 
+    def validate_config_data(self, config_data: Any) -> bool:
+        """Validate the expected config structure.
+
+        The file content must be a dictionary whose values are dictionaries.
+
+        Args:
+            config_data (Any): Data loaded from JSON.
+
+        Returns:
+            bool: True if the shape is valid, otherwise False.
+        """
+        if not isinstance(config_data, dict):
+            return False
+        for section_data in config_data.values():
+            if not isinstance(section_data, dict):
+                return False
+        return True
+
     def load(self) -> bool:
         """Load data from config file
 
@@ -75,11 +93,9 @@ class MDO:
             with open(self._config_file_name, "r", encoding="utf-8") as config_file:
                 # Read data from file
                 config_read = json.load(config_file)
-                if not isinstance(config_read, dict):
+                if not self.validate_config_data(config_read):
                     raise ValueError()
                 for section, section_data in config_read.items():
-                    if not isinstance(section_data, dict):
-                        raise ValueError()
                     for key, data_value in section_data.items():
                         self.set_dictionary_entry(self._data, section, key, data_value)
                 # Set success

@@ -127,6 +127,32 @@ class MDOtest(unittest.TestCase):
             self.assertEqual(sut.load(), False, "Load should fail for an invalid path")
             self.assertEqual(sut.value_get("s1", "k1"), "v1", "Defaults should remain after invalid path load")
 
+    def test_10_load_rejects_non_object_root(self) -> None:
+        """Valid JSON with a non-object root reports failure"""
+        with tempfile.NamedTemporaryFile("w", delete=False, encoding="utf-8") as config_file:
+            config_file.write('[{"s1": {"k1": "value"}}]')
+            config_path = config_file.name
+        try:
+            sut: dataTest = dataTest(config_path)
+            self.assertEqual(sut.load(), False, "Non-object root JSON should fail to load")
+            self.assertEqual(sut.value_get("s1", "k1"), "v1", "Defaults should remain after invalid root shape")
+        finally:
+            if os.path.exists(config_path):
+                os.remove(config_path)
+
+    def test_11_load_rejects_non_object_section(self) -> None:
+        """Valid JSON with a non-object section reports failure"""
+        with tempfile.NamedTemporaryFile("w", delete=False, encoding="utf-8") as config_file:
+            config_file.write('{"s1": ["value"]}')
+            config_path = config_file.name
+        try:
+            sut: dataTest = dataTest(config_path)
+            self.assertEqual(sut.load(), False, "Non-object section JSON should fail to load")
+            self.assertEqual(sut.value_get("s1", "k1"), "v1", "Defaults should remain after invalid section shape")
+        finally:
+            if os.path.exists(config_path):
+                os.remove(config_path)
+
     @classmethod
     def tearDownClass(cls) -> None:
         MDOtest.deleteFile()
