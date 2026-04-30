@@ -32,6 +32,20 @@ class MDOtest(unittest.TestCase):
         self.assertEqual(hasattr(sut, "_defaults"), True, "Dictionary for defaults does not exist")
         self.assertEqual(hasattr(sut, "_data"), True, "Dictionary for data does not exist")
 
+    def test_01b_init_without_auto_load_uses_defaults_only(self) -> None:
+        """Initialization can skip persistence loading"""
+        with tempfile.NamedTemporaryFile("w", delete=False, encoding="utf-8") as config_file:
+            config_file.write('{"s1": {"k1": "persisted value"}}')
+            config_path = config_file.name
+        try:
+            sut: dataTest = dataTest(config_path, auto_load=False)
+            self.assertEqual(sut.value_get("s1", "k1"), "v1", "Defaults should remain when auto_load is disabled")
+            self.assertEqual(sut.load(), True, "Explicit load should still work when auto_load is disabled")
+            self.assertEqual(sut.value_get("s1", "k1"), "persisted value", "Explicit load should apply persisted values")
+        finally:
+            if os.path.exists(config_path):
+                os.remove(config_path)
+
     def test_02_defaultvalues(self) -> None:
         """Test of default values"""
         # Section, key, value to compare

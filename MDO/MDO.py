@@ -9,11 +9,12 @@ from typing import Any
 class MDO:
     """Class to deal with dynamic object, mainly uses as config file"""
 
-    def __init__(self, config_file_name: str) -> None:
+    def __init__(self, config_file_name: str, auto_load: bool = True) -> None:
         """Default constructor
 
         Args:
             config_file_name (str): Name of config file used
+            auto_load (bool): Load persisted config during initialization
         """
         # Set name of config file
         self._config_file_name: str = config_file_name
@@ -21,8 +22,9 @@ class MDO:
         self.cleanup()
         # Load default values
         self.setup()
-        # Update with config values
-        self.load()
+        # Update with config values when requested
+        if auto_load:
+            self.load()
 
     def __str__(self) -> str:
         """Get dictionary as string"""

@@ -69,12 +69,22 @@ myConfigObject.value_set("section1", "key2", 42)
 
 You can also `load` and/or `save` the data.
 
+By default, the constructor calls `load()` automatically. If you want to separate object creation from persistence, instantiate the object with `auto_load=False` and call `load()` explicitly later.
+
 ```python
 # Load the data
 myConfigObject.load()
 
 # Save the data
 myConfigObject.save()
+```
+
+```python
+# Skip automatic loading during initialization
+myConfigObject = ThisIsMyConfig("config.json", auto_load=False)
+
+# Load later when persistence should be applied
+myConfigObject.load()
 ```
 
 ### A complete example
