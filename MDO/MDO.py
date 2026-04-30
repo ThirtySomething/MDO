@@ -133,12 +133,13 @@ class MDO:
         Returns:
             Any: None or the value saved
         """
-        section_work: str = section.upper()
+        section_work: str = section.upper().strip()
+        key_work: str = key.strip()
         if section_work not in self._data:
             return None
-        if key not in self._data[section_work]:
+        if key_work not in self._data[section_work]:
             return None
-        return self._data[section_work][key]
+        return self._data[section_work][key_work]
 
     def value_set(self, section: str, key: str, value: Any) -> None:
         """Set value to object
