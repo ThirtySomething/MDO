@@ -71,17 +71,21 @@ class MDO:
         if not os.path.exists(self._config_file_name):
             # Config file does not exist, abort
             return success
-        with open(self._config_file_name, "r", encoding="utf-8") as config_file:
-            # Read data from file
-            try:
+        try:
+            with open(self._config_file_name, "r", encoding="utf-8") as config_file:
+                # Read data from file
                 config_read = json.load(config_file)
+                if not isinstance(config_read, dict):
+                    raise ValueError()
                 for section, section_data in config_read.items():
+                    if not isinstance(section_data, dict):
+                        raise ValueError()
                     for key, data_value in section_data.items():
                         self.set_dictionary_entry(self._data, section, key, data_value)
                 # Set success
                 success = True
-            except ValueError:
-                self.eprint(f"Invalid config file [{self._config_file_name}], abort")
+        except (OSError, ValueError, TypeError):
+            self.eprint(f"Invalid config file [{self._config_file_name}], abort")
         return success
 
     def save(self) -> bool:
@@ -97,9 +101,12 @@ class MDO:
                 if section not in data_stripped:
                     data_stripped[section] = {}
                 data_stripped[section][key] = self.value_get(section, key)
-        with open(self._config_file_name, "w", encoding="utf-8") as config_file:
-            json.dump(data_stripped, config_file, indent=4, sort_keys=True)
-            success = True
+        try:
+            with open(self._config_file_name, "w", encoding="utf-8") as config_file:
+                json.dump(data_stripped, config_file, indent=4, sort_keys=True)
+                success = True
+        except (OSError, TypeError, ValueError):
+            self.eprint(f"Unable to save config file [{self._config_file_name}], abort")
         return success
 
     def set_dictionary_entry(self, dictionary: dict, section: str, key: str, value: Any) -> None:

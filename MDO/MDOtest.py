@@ -113,13 +113,19 @@ class MDOtest(unittest.TestCase):
             if os.path.exists(config_path):
                 os.remove(config_path)
 
-    def test_08_save_raises_on_invalid_path(self) -> None:
-        """Saving to an invalid path surfaces the underlying filesystem error"""
+    def test_08_save_returns_false_on_invalid_path(self) -> None:
+        """Saving to an invalid path reports failure"""
         with tempfile.TemporaryDirectory() as temp_dir:
             config_path = os.path.join(temp_dir, "missing", "config.json")
             sut: dataTest = dataTest(config_path)
-            with self.assertRaises(OSError):
-                sut.save()
+            self.assertEqual(sut.save(), False, "Save should fail for an invalid path")
+
+    def test_09_load_returns_false_on_invalid_path(self) -> None:
+        """Loading from an invalid path reports failure and keeps defaults"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            sut: dataTest = dataTest(temp_dir)
+            self.assertEqual(sut.load(), False, "Load should fail for an invalid path")
+            self.assertEqual(sut.value_get("s1", "k1"), "v1", "Defaults should remain after invalid path load")
 
     @classmethod
     def tearDownClass(cls) -> None:
