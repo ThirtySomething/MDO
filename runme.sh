@@ -63,6 +63,14 @@ if [[ -z "${VIRTUAL_ENV}" ]]; then
 fi
 
 ################################################################################
+# Re-evaluate interpreter after possible activation to ensure venv is used
+################################################################################
+REAL_PYTHON=$(which python)
+if [[ -z "${REAL_PYTHON}" ]]; then
+    REAL_PYTHON=$(which python3)
+fi
+
+################################################################################
 # Determine script to run; if no name is passed, use default
 ################################################################################
 if [[ -z "${SCRIPT}" ]]; then
