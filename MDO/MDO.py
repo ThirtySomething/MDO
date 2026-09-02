@@ -19,7 +19,7 @@ class MDO:
         # Set name of config file
         self._config_file_name: str = config_file_name
         # Define properties in cleanup method
-        self.cleanup()
+        self._cleanup()
         # Load default values
         self.setup()
         # Update with config values when requested
@@ -43,22 +43,22 @@ class MDO:
             default (Any): Default value of property
         """
         # Write to defaults
-        self.set_dictionary_entry(self._defaults, section, key, default)
+        self._set_dictionary_entry(self._defaults, section, key, default)
         # Also write to used data
-        self.set_dictionary_entry(self._data, section, key, default)
+        self._set_dictionary_entry(self._data, section, key, default)
 
-    def cleanup(self) -> None:
+    def _cleanup(self) -> None:
         """Cleanup internal data"""
         # Dictionary to define allowed sections, keys and defaults
         self._defaults: dict = {}
         # Dictionary to memorized real used data
         self._data: dict = {}
 
-    def eprint(self, *args, **kwargs) -> None:
+    def _eprint(self, *args, **kwargs) -> None:
         """Print error messages"""
         print(*args, file=sys.stderr, **kwargs)
 
-    def validate_config_data(self, config_data: Any) -> bool:
+    def _validate_config_data(self, config_data: Any) -> bool:
         """Validate the expected config structure.
 
         The file content must be a dictionary whose values are dictionaries.
@@ -83,7 +83,7 @@ class MDO:
             bool: True on succes, otherwise False
         """
         # Erase internal storage
-        self.cleanup()
+        self._cleanup()
         # Set defaults
         self.setup()
         # Assume failure by default
@@ -95,15 +95,15 @@ class MDO:
             with open(self._config_file_name, "r", encoding="utf-8") as config_file:
                 # Read data from file
                 config_read = json.load(config_file)
-                if not self.validate_config_data(config_read):
+                if not self._validate_config_data(config_read):
                     raise ValueError()
                 for section, section_data in config_read.items():
                     for key, data_value in section_data.items():
-                        self.set_dictionary_entry(self._data, section, key, data_value)
+                        self._set_dictionary_entry(self._data, section, key, data_value)
                 # Set success
                 success = True
         except (OSError, ValueError, TypeError):
-            self.eprint(f"Invalid config file [{self._config_file_name}], abort")
+            self._eprint(f"Invalid config file [{self._config_file_name}], abort")
         return success
 
     def save(self) -> bool:
@@ -124,10 +124,10 @@ class MDO:
                 json.dump(data_stripped, config_file, indent=4, sort_keys=True)
                 success = True
         except (OSError, TypeError, ValueError):
-            self.eprint(f"Unable to save config file [{self._config_file_name}], abort")
+            self._eprint(f"Unable to save config file [{self._config_file_name}], abort")
         return success
 
-    def set_dictionary_entry(self, dictionary: dict, section: str, key: str, value: Any) -> None:
+    def _set_dictionary_entry(self, dictionary: dict, section: str, key: str, value: Any) -> None:
         """Set value to dictionary
 
         Args:
@@ -175,4 +175,4 @@ class MDO:
             key (str): Key used
             value (Any): Value to set
         """
-        self.set_dictionary_entry(self._data, section, key, value)
+        self._set_dictionary_entry(self._data, section, key, value)
