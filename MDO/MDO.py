@@ -102,8 +102,8 @@ class MDO:
                         self._set_dictionary_entry(self._data, section, key, data_value)
                 # Set success
                 success = True
-        except (OSError, ValueError, TypeError):
-            self._eprint(f"Invalid config file [{self._config_file_name}], abort")
+        except (OSError, ValueError, TypeError) as ex:
+            self._eprint(f"Invalid config file [{self._config_file_name}]: [{ex}]")
         return success
 
     def save(self) -> bool:
@@ -123,8 +123,8 @@ class MDO:
             with open(self._config_file_name, "w", encoding="utf-8") as config_file:
                 json.dump(data_stripped, config_file, indent=4, sort_keys=True)
                 success = True
-        except (OSError, TypeError, ValueError):
-            self._eprint(f"Unable to save config file [{self._config_file_name}], abort")
+        except (OSError, TypeError, ValueError) as ex:
+            self._eprint(f"Unable to save config file [{self._config_file_name}]: [{ex}]")
         return success
 
     def _set_dictionary_entry(self, dictionary: dict, section: str, key: str, value: Any) -> None:
