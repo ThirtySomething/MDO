@@ -9,6 +9,8 @@ from typing import Any
 class MDO:
     """Class to deal with dynamic object, mainly uses as config file"""
 
+    MDO_INDENT: int = 4
+
     def __init__(self, config_file_name: str, auto_load: bool = True) -> None:
         """Default constructor
 
@@ -28,7 +30,7 @@ class MDO:
 
     def __str__(self) -> str:
         """Get dictionary as string"""
-        return json.dumps(self._data, indent=4)
+        return json.dumps(self._data, indent=self.MDO_INDENT, sort_keys=True)
 
     def __repr__(self) -> str:
         """Get dictionary as string"""
@@ -121,7 +123,7 @@ class MDO:
                 data_stripped[section][key] = self.value_get(section, key)
         try:
             with open(self._config_file_name, "w", encoding="utf-8") as config_file:
-                json.dump(data_stripped, config_file, indent=4, sort_keys=True)
+                json.dump(data_stripped, config_file, indent=self.MDO_INDENT, sort_keys=True)
                 success = True
         except (OSError, TypeError, ValueError) as ex:
             self._eprint(f"Unable to save config file [{self._config_file_name}]: [{ex}]")
